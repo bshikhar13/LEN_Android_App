@@ -40,6 +40,37 @@ public class MainActivity extends AppCompatActivity {
         int rssi0 = result0.level;
         String rssiString0 = String.valueOf(rssi0);
         items.add("\n" + ssid0 + "   " + rssiString0);
+    try {
+        ScanResult result1 = wifi.getScanResults().get(1);
+        String ssid1 = result1.SSID;
+        int rssi1 = result1.level;
+        String rssiString1 = String.valueOf(rssi1);
+        items.add("\n" + ssid1 + "   " + rssiString1);
+    }catch (Exception e){
+
+    }
+
+        try {
+            ScanResult result2 = wifi.getScanResults().get(2);
+            String ssid2 = result2.SSID;
+            int rssi2 = result2.level;
+            String rssiString2 = String.valueOf(rssi2);
+            items.add("\n" + ssid2 + "   " + rssiString2);
+        }catch (Exception e){
+
+        }
+
+        try {
+            ScanResult result3 = wifi.getScanResults().get(3);
+            String ssid3 = result3.SSID;
+            int rssi3 = result3.level;
+            String rssiString3 = String.valueOf(rssi3);
+            items.add("\n" + ssid3 + "   " + rssiString3);
+        }catch (Exception e){
+
+        }
+
+
     }
 
     @Override
