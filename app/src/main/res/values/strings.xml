@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">LEN</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="textStatus">New Text</string>
+    <string name="textStat">New Text</string>
+</resources>
