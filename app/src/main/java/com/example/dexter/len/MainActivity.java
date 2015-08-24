@@ -12,9 +12,11 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
+import android.os.*;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,43 +35,55 @@ public class MainActivity extends AppCompatActivity {
         itemsAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,items);
         lvItems.setAdapter(itemsAdapter);
+        final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
-        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        ScanResult result0 = wifi.getScanResults().get(0);
-        String ssid0 = result0.SSID;
-        int rssi0 = result0.level;
-        String rssiString0 = String.valueOf(rssi0);
-        items.add("\n" + ssid0 + "   " + rssiString0);
-    try {
-        ScanResult result1 = wifi.getScanResults().get(1);
-        String ssid1 = result1.SSID;
-        int rssi1 = result1.level;
-        String rssiString1 = String.valueOf(rssi1);
-        items.add("\n" + ssid1 + "   " + rssiString1);
-    }catch (Exception e){
+        final Handler h = new Handler();
+        final int delay = 50; //milliseconds
 
-    }
+        h.postDelayed(new Runnable(){
+            public void run(){
+                itemsAdapter.clear();
+                ScanResult result0 = wifi.getScanResults().get(0);
+                String ssid0 = result0.SSID;
+                int rssi0 = result0.level;
+                String rssiString0 = String.valueOf(rssi0);
+                items.add("\n" + ssid0 + "   " + rssiString0);
 
-        try {
-            ScanResult result2 = wifi.getScanResults().get(2);
-            String ssid2 = result2.SSID;
-            int rssi2 = result2.level;
-            String rssiString2 = String.valueOf(rssi2);
-            items.add("\n" + ssid2 + "   " + rssiString2);
-        }catch (Exception e){
+                try {
+                    ScanResult result1 = wifi.getScanResults().get(1);
+                    String ssid1 = result1.SSID;
+                    int rssi1 = result1.level;
+                    String rssiString1 = String.valueOf(rssi1);
+                    items.add("\n" + ssid1 + "   " + rssiString1);
+                }catch (Exception e2){
 
-        }
+                }
 
-        try {
-            ScanResult result3 = wifi.getScanResults().get(3);
-            String ssid3 = result3.SSID;
-            int rssi3 = result3.level;
-            String rssiString3 = String.valueOf(rssi3);
-            items.add("\n" + ssid3 + "   " + rssiString3);
-        }catch (Exception e){
 
-        }
+                try {
+                    ScanResult result2 = wifi.getScanResults().get(2);
+                    String ssid2 = result2.SSID;
+                    int rssi2 = result2.level;
+                    String rssiString2 = String.valueOf(rssi2);
+                    items.add("\n" + ssid2 + "   " + rssiString2);
+                }catch (Exception e3){
 
+                }
+
+
+                try {
+                    ScanResult result3 = wifi.getScanResults().get(3);
+                    String ssid3 = result3.SSID;
+                    int rssi3 = result3.level;
+                    String rssiString3 = String.valueOf(rssi3);
+                    items.add("\n" + ssid3 + "   " + rssiString3);
+                }catch (Exception e){
+
+                }
+
+                h.postDelayed(this, delay);
+            }
+        }, delay);
 
     }
 
