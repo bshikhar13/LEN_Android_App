@@ -1,8 +1,6 @@
 package com.example.dexter.len;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
@@ -11,11 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.os.*;
 import java.util.ArrayList;
-import java.util.List;
-
 
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +18,13 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
+
+    public double calculatedistance(int rssi){
+        int A = -35;
+        double n = 2.2;
+        double distance = Math.pow(10.0, ((A - rssi) / (10 * n)));
+        return distance;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +48,10 @@ public class MainActivity extends AppCompatActivity {
                 ScanResult result0 = wifi.getScanResults().get(0);
                 String ssid0 = result0.SSID;
                 int rssi0 = result0.level;
+                double distance  = calculatedistance(rssi0);
                 String rssiString0 = String.valueOf(rssi0);
-                items.add("\n" + ssid0 + "   " + rssiString0);
+                String distance0 = String.valueOf(distance);
+                items.add("\n" + ssid0 + "   " + rssiString0 + "   : " + distance0);
 
                 try {
                     ScanResult result1 = wifi.getScanResults().get(1);
@@ -81,9 +85,12 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
+
                 h.postDelayed(this, delay);
             }
         }, delay);
+
+
 
     }
 
