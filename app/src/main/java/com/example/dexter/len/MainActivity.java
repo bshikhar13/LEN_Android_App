@@ -5,16 +5,24 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.os.*;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final String TAG = "SBActivity";
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
@@ -25,6 +33,37 @@ public class MainActivity extends AppCompatActivity {
         double distance = Math.pow(10.0, ((A - rssi) / (10 * n)));
         return distance;
     }
+
+    public void senddata(String ssid0, String rssi0){
+            String data = "";
+            try{
+                data = URLEncoder.encode("ssid0", "UTF-8") + "=" + URLEncoder.encode(ssid0, "UTF-8");
+
+                data += "&" + URLEncoder.encode("rssi0", "UTF-8") + "=" + URLEncoder.encode(rssi0, "UTF-8");
+
+            }catch (Exception e){
+
+            }
+        Log.v(TAG, "data = " + data);
+            String text = "";
+            BufferedReader reader=null;
+            try{
+                URL url = new URL("http://192.168.0.3/LEN/LENdata.php");
+                // Send POST data request
+                URLConnection conn = url.openConnection();
+                conn.setDoOutput(true);
+                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+
+                wr.write(data);
+                wr.flush();
+
+            }catch (Exception e){
+                Log.v(TAG, "status  = " + e);
+            }
+
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
         final Handler h = new Handler();
-        final int delay = 50; //milliseconds
+        final int delay = 1000; //milliseconds
 
         h.postDelayed(new Runnable(){
             public void run(){
@@ -52,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 String rssiString0 = String.valueOf(rssi0);
                 String distance0 = String.valueOf(distance);
                 items.add("\n" + ssid0 + "   " + rssiString0 + "   : " + distance0);
-
+                senddata(ssid0,rssiString0);
                 try {
                     ScanResult result1 = wifi.getScanResults().get(1);
                     String ssid1 = result1.SSID;
