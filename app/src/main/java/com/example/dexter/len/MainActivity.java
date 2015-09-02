@@ -2,6 +2,7 @@ package com.example.dexter.len;
 
 import android.content.Context;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -62,13 +63,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void senddata(String ssid0, String rssi0){
+    public void senddata(String phone_mac,String ssid0, String rssi0){
 
             try{
+                phone_mac = URLEncoder.encode(phone_mac,"UTF-8");
                 ssid0 = URLEncoder.encode(ssid0,"UTF-8");
                 rssi0 = URLEncoder.encode(rssi0,"UTF-8");
 
-                String url_request = "http://192.168.1.10/LEN/LENdata.php?ssid0="+ssid0+"&rssi0="+rssi0;
+                String url_request = "http://192.168.1.10/LEN/LENdata.php?phone_mac="+phone_mac+"&ssid0="+ssid0+"&rssi0="+rssi0;
+                Log.i("GOGO",url_request);
                 URL url = new URL(url_request);
 
                 new CallAPI().execute(url_request);
@@ -88,55 +91,69 @@ public class MainActivity extends AppCompatActivity {
 
         lvItems=(ListView)findViewById(R.id.listView);
 
+
         items = new ArrayList<String>();
         itemsAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,items);
         lvItems.setAdapter(itemsAdapter);
         final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
-        final Handler h = new Handler();
-        final int delay = 20; //milliseconds
+        WifiInfo info = wifi.getConnectionInfo();
+        final String phone_mac = info.getMacAddress();
 
-        h.postDelayed(new Runnable(){
-            public void run(){
+        final Handler h = new Handler();
+        final int delay = 1000; //milliseconds
+
+        h.postDelayed(new Runnable() {
+            public void run() {
                 itemsAdapter.clear();
                 ScanResult result0 = wifi.getScanResults().get(0);
-                String ssid0 = result0.SSID;
+
+                String ssid0 = result0.BSSID;
                 int rssi0 = result0.level;
-
+                Log.i("DETAILS", result0.toString());
                 String rssiString0 = String.valueOf(rssi0);
-
-                items.add("\n" + ssid0 + "   " + rssiString0 + "   : " + distance0);
-                senddata(ssid0,rssiString0);
+                String ap_name0 = result0.SSID;
+                senddata(phone_mac, ssid0, rssiString0);
+                items.add("\n" + ssid0 + " - "+ap_name0+" - " + rssiString0);
                 try {
                     ScanResult result1 = wifi.getScanResults().get(1);
-                    String ssid1 = result1.SSID;
+                    String ssid1 = result1.BSSID;
                     int rssi1 = result1.level;
+                    Log.i("DETAILS", result1.toString());
                     String rssiString1 = String.valueOf(rssi1);
-                    items.add("\n" + ssid1 + "   " + rssiString1);
-                }catch (Exception e2){
+                    String ap_name1 = result1.SSID;
+                    senddata(phone_mac, ssid1, rssiString1);
+                    items.add("\n" + ssid1 + " - "+ap_name1+" - " + rssiString1);
+                } catch (Exception e2) {
 
                 }
 
 
                 try {
                     ScanResult result2 = wifi.getScanResults().get(2);
-                    String ssid2 = result2.SSID;
+                    String ssid2 = result2.BSSID;
                     int rssi2 = result2.level;
+                    Log.i("DETAILS", result2.toString());
                     String rssiString2 = String.valueOf(rssi2);
-                    items.add("\n" + ssid2 + "   " + rssiString2);
-                }catch (Exception e3){
+                    String ap_name2 = result2.SSID;
+                    senddata(phone_mac, ssid2, rssiString2);
+                    items.add("\n" + ssid2 + " - "+ap_name2+" - " + rssiString2);
+                } catch (Exception e3) {
 
                 }
 
 
                 try {
                     ScanResult result3 = wifi.getScanResults().get(3);
-                    String ssid3 = result3.SSID;
+                    String ssid3 = result3.BSSID;
                     int rssi3 = result3.level;
+                    Log.i("DETAILS", result3.toString());
                     String rssiString3 = String.valueOf(rssi3);
-                    items.add("\n" + ssid3 + "   " + rssiString3);
-                }catch (Exception e){
+                    String ap_name3 = result3.SSID;
+                    senddata(phone_mac, ssid3, rssiString3);
+                    items.add("\n" + ssid3 + " - "+ap_name3+" - " + rssiString3);
+                } catch (Exception e) {
 
                 }
 
@@ -144,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
                 h.postDelayed(this, delay);
             }
         }, delay);
-
 
 
     }
