@@ -12,13 +12,27 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.os.*;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -34,31 +48,33 @@ public class MainActivity extends AppCompatActivity {
         return distance;
     }
 
-    public void senddata(String ssid0, String rssi0){
-            String data = "";
-            try{
-                data = URLEncoder.encode("ssid0", "UTF-8") + "=" + URLEncoder.encode(ssid0, "UTF-8");
-
-                data += "&" + URLEncoder.encode("rssi0", "UTF-8") + "=" + URLEncoder.encode(rssi0, "UTF-8");
-
-            }catch (Exception e){
-
+    private String readStream(InputStream is) {
+        try {
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            int i = is.read();
+            while(i != -1) {
+                bo.write(i);
+                i = is.read();
             }
-        Log.v(TAG, "data = " + data);
-            String text = "";
-            BufferedReader reader=null;
-            try{
-                URL url = new URL("http://192.168.0.3/LEN/LENdata.php");
-                // Send POST data request
-                URLConnection conn = url.openConnection();
-                conn.setDoOutput(true);
-                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            return bo.toString();
+        } catch (IOException e) {
+            return "";
+        }
+    }
 
-                wr.write(data);
-                wr.flush();
+    public void senddata(String ssid0, String rssi0){
+
+            try{
+                ssid0 = URLEncoder.encode(ssid0,"UTF-8");
+                rssi0 = URLEncoder.encode(rssi0,"UTF-8");
+
+                String url_request = "http://192.168.1.10/LEN/LENdata.php?ssid0="+ssid0+"&rssi0="+rssi0;
+                URL url = new URL(url_request);
+
+                new CallAPI().execute(url_request);
 
             }catch (Exception e){
-                Log.v(TAG, "status  = " + e);
+                Log.i("SBS", e.toString());
             }
 
 
@@ -79,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
         final Handler h = new Handler();
-        final int delay = 1000; //milliseconds
+        final int delay = 20; //milliseconds
 
         h.postDelayed(new Runnable(){
             public void run(){
@@ -87,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
                 ScanResult result0 = wifi.getScanResults().get(0);
                 String ssid0 = result0.SSID;
                 int rssi0 = result0.level;
-                double distance  = calculatedistance(rssi0);
+
                 String rssiString0 = String.valueOf(rssi0);
-                String distance0 = String.valueOf(distance);
+
                 items.add("\n" + ssid0 + "   " + rssiString0 + "   : " + distance0);
                 senddata(ssid0,rssiString0);
                 try {
@@ -132,6 +148,44 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private class CallAPI extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String urlString=params[0]; // URL to call
+
+            String resultToDisplay = "";
+
+            InputStream in = null;
+
+            // HTTP Get
+            try {
+
+                URL url = new URL(urlString);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+                in = new BufferedInputStream(urlConnection.getInputStream());
+
+            } catch (Exception e ) {
+
+                System.out.println(e.getMessage());
+
+                return e.getMessage();
+
+            }
+
+            return resultToDisplay;
+
+        }
+
+        protected void onPostExecute(String result) {
+
+        }
+
+    } // end CallAPI
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
